@@ -10,18 +10,32 @@
 #include <Arduino.h>
 #include <limits.h>
 
-#ifndef BUZZER_PIN
-#define BUZZER_PIN D4 //2
-#endif
+#define BEEPER_PIN 2 //D4
+#define BEEPER_COOLDOWN 20
+#define BEEPER_DEFAULT_PITCH 1660
+#define BEEPER_DEFAULT_DURATION 70
+#define BEEPER_MAX_PENDING 10
+
+struct Beep {
+  int pitch;
+  int duration;
+  Beep(int pitch, int duration): pitch(pitch), duration(duration) {}
+};
 
 class Beeper
 {
   public:
     Beeper();
-    void beep(int);
+    void beep();
+    void beep(int pitch);
+    void beep(int pitch, int duration);
+    void confirmPositive();
+    void confirmNegative();
     void update();
 
   private:
+    void _beep();
+    boolean _shouldBeep();
 };
 
 #endif

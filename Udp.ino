@@ -3,6 +3,7 @@
 #include <limits.h>
 #include "./Beeper.h"
 #include "./Blinker.h"
+#include "./Vario.h"
 
 #ifndef WIFI_SSID
 #define WIFI_SSID "Plantopia"
@@ -14,14 +15,12 @@
 #endif
 
 #ifndef LOG_INTVL
-#define LOG_INTVL 1000
+#define LOG_INTVL 100
 #endif
 
 const int startStopPin = D5; // 14
-const int statusLedPin = D6; //12
-const int pressurePin = A0; // 4
 
-bool logging = false;
+bool logging = true;
 
 unsigned long buttonPressed = LONG_MAX;
 unsigned long lastLogTime = 0;
@@ -33,6 +32,7 @@ bool ignorePress = false;
 
 Beeper beeper = Beeper();
 Blinker blinker = Blinker();
+Vario vario = Vario();
 
 ICACHE_RAM_ATTR void startStopChangeCallback() {
   if (digitalRead(startStopPin) == LOW) {
@@ -48,9 +48,9 @@ ICACHE_RAM_ATTR void startStopChangeCallback() {
 void toggle() {
   logging = !logging;
   if (logging) {
-    beeper.beep(1660);
+    beeper.confirmPositive();
   } else {
-    beeper.beep(880);
+    beeper.confirmNegative();
   }
   blinker.blink();
 }
@@ -59,26 +59,22 @@ bool isLongPress() {
   return isPressed && isLongEnoughInPast(buttonPressed, LONG_PRESS_INTVL);
 }
 
-int lastValue = 0;
-int currentValue = 0;
-void showDifference () {
-  currentValue = analogRead(pressurePin);
-  int difference = currentValue - lastValue;
-  Serial.println(difference);
-
-  if (difference > 10) {
-    beeper.beep(1660 + difference * 4);
-  } else if (difference < -20) {
-    beeper.beep(800);
-  }
-  lastValue = currentValue;
-}
-
 void logData() {
   if (isLongEnoughInPast(lastLogTime, LOG_INTVL)) {
-    Serial.println(UTC.dateTime(ISO8601) + ": ...");
+    const int difference = vario.difference();
+    Serial.print(UTC.dateTime(ISO8601) + ": ");
+    Serial.print(vario.value());
+    Serial.print(" (");
+    Serial.print(difference);
+    Serial.println(")");
     blinker.blink();
     lastLogTime = millis();
+
+    if (abs(difference) > 20) {
+      int pitch = 1000 + (difference * 4);
+      Serial.println(pitch);
+      beeper.beep(pitch);
+    }
   }
 }
 
@@ -88,32 +84,34 @@ bool isLongEnoughInPast(unsigned long when, int howLong) {
 
 void setup(){
   pinMode(startStopPin, INPUT_PULLUP);
-  pinMode(statusLedPin, OUTPUT);
-
-  digitalWrite(statusLedPin, LOW);
 
   Serial.begin(115200);
   Serial.println();
   Serial.print("Booting");
+
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  while ( WiFi.status() != WL_CONNECTED ) {
+  do {
     delay(500);
     Serial.print ( "." );
-  }
+  } while ( WiFi.status() != WL_CONNECTED );
+
   Serial.println();
   Serial.println("Connected to WiFi");
 
  // wait for internet time
   waitForSync();
   Serial.println("Received internet time: " + UTC.dateTime());
+  WiFi.mode(WIFI_OFF);
 
   attachInterrupt(digitalPinToInterrupt(startStopPin), startStopChangeCallback, CHANGE);
 
-  beeper.beep(1000);
-  beeper.beep(1000);
+  beeper.confirmPositive();
 }
 
 void loop() {
+  beeper.update();
+  blinker.update();
+
   if (!ignorePress && isLongPress()) {
     ignorePress = true;
     toggle();
@@ -122,9 +120,5 @@ void loop() {
     return;
   }
 
-  beeper.update();
-  blinker.update();
   logData();
-  showDifference();
-  delay(100);
 }

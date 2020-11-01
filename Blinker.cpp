@@ -5,6 +5,7 @@ boolean isOn = false;
 
 Blinker::Blinker() {
   pinMode(BLINKER_PIN, OUTPUT);
+  digitalWrite(BLINKER_PIN, HIGH);
 }
 
 void Blinker::blink() {

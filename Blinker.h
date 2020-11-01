@@ -10,7 +10,7 @@
 #include <Arduino.h>
 #include <limits.h>
 
-#define BLINKER_PIN D6 //12
+#define BLINKER_PIN 12 //D6
 #define BLINKER_DURATION 150
 
 class Blinker
