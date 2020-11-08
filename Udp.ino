@@ -20,7 +20,7 @@
 
 const int startStopPin = D5; // 14
 
-bool logging = true;
+bool logging = false;
 
 unsigned long buttonPressed = LONG_MAX;
 unsigned long lastLogTime = 0;
@@ -32,7 +32,7 @@ bool ignorePress = false;
 
 Beeper beeper = Beeper();
 Blinker blinker = Blinker();
-Vario vario = Vario();
+Vario vario = Vario(beeper);
 
 ICACHE_RAM_ATTR void startStopChangeCallback() {
   if (digitalRead(startStopPin) == LOW) {
@@ -61,20 +61,12 @@ bool isLongPress() {
 
 void logData() {
   if (isLongEnoughInPast(lastLogTime, LOG_INTVL)) {
-    const int difference = vario.difference();
-    Serial.print(UTC.dateTime(ISO8601) + ": ");
-    Serial.print(vario.value());
-    Serial.print(" (");
-    Serial.print(difference);
-    Serial.println(")");
+    Serial.print(UTC.dateTime(ISO8601) + " vario: ");
+    Serial.print(vario.getCurrentValue());
+    Serial.print(', pitch: ');
+    Serial.println(vario.getCurrentPitch());
     blinker.blink();
     lastLogTime = millis();
-
-    if (abs(difference) > 20) {
-      int pitch = 1000 + (difference * 4);
-      Serial.println(pitch);
-      beeper.beep(pitch);
-    }
   }
 }
 
@@ -111,6 +103,7 @@ void setup(){
 void loop() {
   beeper.update();
   blinker.update();
+  vario.update();
 
   if (!ignorePress && isLongPress()) {
     ignorePress = true;
