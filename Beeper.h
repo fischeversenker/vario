@@ -11,7 +11,7 @@
 #include <limits.h>
 
 #define BEEPER_PIN 2 //D4
-#define BEEPER_COOLDOWN 20
+#define BEEPER_DEFAULT_COOLDOWN 20
 #define BEEPER_DEFAULT_PITCH 1660
 #define BEEPER_DEFAULT_DURATION 70
 #define BEEPER_MAX_PENDING 10
@@ -19,7 +19,8 @@
 struct Beep {
   int pitch;
   int duration;
-  Beep(int pitch, int duration): pitch(pitch), duration(duration) {}
+  int cooldown;
+  Beep(int pitch, int duration, int cooldown): pitch(pitch), duration(duration), cooldown(cooldown) {}
 };
 
 class Beeper
@@ -29,6 +30,7 @@ class Beeper
     void beep();
     void beep(int pitch);
     void beep(int pitch, int duration);
+    void beep(int pitch, int duration, int cooldown);
     void confirmPositive();
     void confirmNegative();
     void update();

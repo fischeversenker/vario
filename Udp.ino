@@ -32,7 +32,7 @@ bool ignorePress = false;
 
 Beeper beeper = Beeper();
 Blinker blinker = Blinker();
-Vario vario = Vario(beeper);
+Vario vario = Vario();
 
 ICACHE_RAM_ATTR void startStopChangeCallback() {
   if (digitalRead(startStopPin) == LOW) {
@@ -61,13 +61,22 @@ bool isLongPress() {
 
 void logData() {
   if (isLongEnoughInPast(lastLogTime, LOG_INTVL)) {
+    int pitch = vario.getCurrentPitch();
     Serial.print(UTC.dateTime(ISO8601) + " vario: ");
     Serial.print(vario.getCurrentValue());
-    Serial.print(', pitch: ');
-    Serial.println(vario.getCurrentPitch());
+    Serial.print(", pitch: ");
+    Serial.println(pitch);
     blinker.blink();
+
+    beeper.beep(pitch, BEEPER_DEFAULT_DURATION, beepCooldown(pitch));
+
     lastLogTime = millis();
   }
+}
+
+// the higher the input the lower the duration
+int beepCooldown(int beepPitch) {
+  return (beepPitch * (-500.0 / 1024)) + 500;
 }
 
 bool isLongEnoughInPast(unsigned long when, int howLong) {
@@ -103,7 +112,6 @@ void setup(){
 void loop() {
   beeper.update();
   blinker.update();
-  vario.update();
 
   if (!ignorePress && isLongPress()) {
     ignorePress = true;
@@ -112,6 +120,8 @@ void loop() {
   if (!logging) {
     return;
   }
+
+  vario.update();
 
   logData();
 }

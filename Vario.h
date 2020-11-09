@@ -9,22 +9,21 @@
 
 #include <Arduino.h>
 #include <limits.h>
-#include "./Beeper.h"
 
 #define VARIO_PIN A0 //4
-#define MAX_VARIO_VALUES 30
+#define MAX_VARIO_VALUES 300
 
 class Vario
 {
   public:
-    Vario(Beeper beeper);
+    Vario();
     int getCurrentValue();
     void update();
     int getCurrentPitch();
 
   private:
     void addValue();
-    float getWeightForIndex(int index);
+    float getWeightForIndex(int index, int count);
 
 };
 

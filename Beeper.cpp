@@ -3,9 +3,9 @@
 
 unsigned long lastBeepStop = LONG_MAX;
 unsigned long lastBeepStart = LONG_MAX;
+unsigned long lastBeepCooldown = BEEPER_DEFAULT_COOLDOWN;
 
 boolean isBeeping = false;
-boolean isPaused = false;
 
 std::queue<struct Beep> pendingBeepsQueue;
 
@@ -23,7 +23,15 @@ void Beeper::beep(int pitch) {
 }
 
 void Beeper::beep(int pitch, int duration) {
-  pendingBeepsQueue.push(Beep(pitch, duration));
+  beep(pitch, duration, BEEPER_DEFAULT_COOLDOWN);
+}
+
+void Beeper::beep(int pitch, int duration, int cooldown) {
+  // optimize this...
+  // only allow beeps while not beeping maybe?
+  if (!isBeeping && pendingBeepsQueue.size() < BEEPER_MAX_PENDING) {
+    pendingBeepsQueue.push(Beep(pitch, duration, cooldown));
+  }
 }
 
 void Beeper::confirmPositive() {
@@ -56,10 +64,11 @@ void Beeper::_beep() {
   tone(BEEPER_PIN, pendingBeepsQueue.front().pitch);
   isBeeping = true;
   lastBeepStart = millis();
+  lastBeepCooldown = pendingBeepsQueue.front().cooldown;
 }
 
 boolean Beeper::_shouldBeep() {
-  boolean mayBeep = !isPaused && !isBeeping && millis() - lastBeepStop >= BEEPER_COOLDOWN;
+  boolean mayBeep = !isBeeping && millis() - lastBeepStop >= lastBeepCooldown;
   boolean hasBeeps = pendingBeepsQueue.size() > 0;
   return mayBeep && hasBeeps;
 }
