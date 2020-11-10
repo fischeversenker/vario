@@ -27,9 +27,6 @@ class Beeper
 {
   public:
     Beeper();
-    void beep();
-    void beep(int pitch);
-    void beep(int pitch, int duration);
     void beep(int pitch, int duration, int cooldown);
     void confirmPositive();
     void confirmNegative();

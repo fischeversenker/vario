@@ -14,22 +14,10 @@ Beeper::Beeper() {
   noTone(BEEPER_PIN);
 }
 
-void Beeper::beep() {
-  beep(BEEPER_DEFAULT_PITCH);
-}
-
-void Beeper::beep(int pitch) {
-  beep(pitch, BEEPER_DEFAULT_DURATION);
-}
-
-void Beeper::beep(int pitch, int duration) {
-  beep(pitch, duration, BEEPER_DEFAULT_COOLDOWN);
-}
-
-void Beeper::beep(int pitch, int duration, int cooldown) {
+void Beeper::beep(int pitch = BEEPER_DEFAULT_PITCH, int duration = BEEPER_DEFAULT_DURATION, int cooldown = BEEPER_DEFAULT_COOLDOWN) {
   // optimize this...
   // only allow beeps while not beeping maybe?
-  if (!isBeeping && pendingBeepsQueue.size() < BEEPER_MAX_PENDING) {
+  if (pendingBeepsQueue.size() < BEEPER_MAX_PENDING) {
     pendingBeepsQueue.push(Beep(pitch, duration, cooldown));
   }
 }
