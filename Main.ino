@@ -6,8 +6,8 @@
 #include "./Vario.h"
 
 #ifndef WIFI_SSID
-#define WIFI_SSID "Plantopia"
-#define WIFI_PASSWORD "genaudreizehn"
+#define WIFI_SSID "YOUR_SSID"
+#define WIFI_PASSWORD "YOUR_PASSWORD"
 #endif
 
 #ifndef LONG_PRESS_INTVL
