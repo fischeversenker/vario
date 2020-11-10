@@ -124,4 +124,5 @@ void loop() {
   vario.update();
 
   logData();
+  delay(10);
 }
