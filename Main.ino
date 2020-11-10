@@ -55,7 +55,7 @@ void toggle() {
   blinker.blink();
 }
 
-bool isLongPress() {
+inline bool isLongPress() {
   return isPressed && isLongEnoughInPast(buttonPressed, LONG_PRESS_INTVL);
 }
 
@@ -75,11 +75,11 @@ void logData() {
 }
 
 // the higher the input the lower the duration
-int beepCooldown(int beepPitch) {
+inline int beepCooldown(int beepPitch) {
   return (beepPitch * (-500.0 / 1024)) + 500;
 }
 
-bool isLongEnoughInPast(unsigned long when, int howLong) {
+inline bool isLongEnoughInPast(unsigned long when, int howLong) {
   return millis() - when > howLong;
 }
 
