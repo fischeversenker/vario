@@ -1,0 +1,3 @@
+# Variometer for ESP8266
+
+work in progress...
