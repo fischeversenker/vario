@@ -34,33 +34,44 @@ Beeper beeper = Beeper();
 Blinker blinker = Blinker();
 Vario vario = Vario();
 
-ICACHE_RAM_ATTR void startStopChangeCallback() {
-  if (digitalRead(startStopPin) == LOW) {
+ICACHE_RAM_ATTR void startStopChangeCallback()
+{
+  if (digitalRead(startStopPin) == LOW)
+  {
     buttonPressed = millis();
     isPressed = true;
-  } else {
+  }
+  else
+  {
     buttonPressed = LONG_MAX;
     isPressed = false;
     ignorePress = false;
   }
 }
 
-void toggle() {
+void toggle()
+{
   logging = !logging;
-  if (logging) {
+  if (logging)
+  {
     beeper.confirmPositive();
-  } else {
+  }
+  else
+  {
     beeper.confirmNegative();
   }
   blinker.blink();
 }
 
-inline bool isLongPress() {
+inline bool isLongPress()
+{
   return isPressed && isLongEnoughInPast(buttonPressed, LONG_PRESS_INTVL);
 }
 
-void logData() {
-  if (isLongEnoughInPast(lastLogTime, LOG_INTVL)) {
+void logData()
+{
+  if (isLongEnoughInPast(lastLogTime, LOG_INTVL))
+  {
     int pitch = vario.getCurrentPitch();
     Serial.print(UTC.dateTime(ISO8601) + " vario: ");
     Serial.print(vario.getCurrentValue());
@@ -75,15 +86,18 @@ void logData() {
 }
 
 // the higher the input the lower the duration
-inline int beepCooldown(int beepPitch) {
+inline int beepCooldown(int beepPitch)
+{
   return (beepPitch * (-500.0 / 1024)) + 500;
 }
 
-inline bool isLongEnoughInPast(unsigned long when, int howLong) {
+inline bool isLongEnoughInPast(unsigned long when, int howLong)
+{
   return millis() - when > howLong;
 }
 
-void setup(){
+void setup()
+{
   pinMode(startStopPin, INPUT_PULLUP);
 
   Serial.begin(115200);
@@ -91,15 +105,16 @@ void setup(){
   Serial.print("Booting");
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  do {
+  do
+  {
     delay(500);
-    Serial.print ( "." );
-  } while ( WiFi.status() != WL_CONNECTED );
+    Serial.print(".");
+  } while (WiFi.status() != WL_CONNECTED);
 
   Serial.println();
   Serial.println("Connected to WiFi");
 
- // wait for internet time
+  // wait for internet time
   waitForSync();
   Serial.println("Received internet time: " + UTC.dateTime());
   WiFi.mode(WIFI_OFF);
@@ -109,15 +124,18 @@ void setup(){
   beeper.confirmPositive();
 }
 
-void loop() {
+void loop()
+{
   beeper.update();
   blinker.update();
 
-  if (!ignorePress && isLongPress()) {
+  if (!ignorePress && isLongPress())
+  {
     ignorePress = true;
     toggle();
   }
-  if (!logging) {
+  if (!logging)
+  {
     return;
   }
 

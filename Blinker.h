@@ -15,14 +15,14 @@
 
 class Blinker
 {
-  public:
-    Blinker();
-    void blink();
-    void update();
+public:
+  Blinker();
+  void blink();
+  void update();
 
-  private:
-    unsigned long lastBlinkStart;
-    boolean isOn;
+private:
+  unsigned long lastBlinkStart;
+  boolean isOn;
 };
 
 #endif

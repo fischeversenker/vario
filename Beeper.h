@@ -16,25 +16,26 @@
 #define BEEPER_DEFAULT_DURATION 70
 #define BEEPER_MAX_PENDING 10
 
-struct Beep {
+struct Beep
+{
   int pitch;
   int duration;
   int cooldown;
-  Beep(int pitch, int duration, int cooldown): pitch(pitch), duration(duration), cooldown(cooldown) {}
+  Beep(int pitch, int duration, int cooldown) : pitch(pitch), duration(duration), cooldown(cooldown) {}
 };
 
 class Beeper
 {
-  public:
-    Beeper();
-    void beep(int pitch, int duration, int cooldown);
-    void confirmPositive();
-    void confirmNegative();
-    void update();
+public:
+  Beeper();
+  void beep(int pitch, int duration, int cooldown);
+  void confirmPositive();
+  void confirmNegative();
+  void update();
 
-  private:
-    void _beep();
-    boolean _shouldBeep();
+private:
+  void _beep();
+  boolean _shouldBeep();
 };
 
 #endif

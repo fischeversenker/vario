@@ -15,16 +15,15 @@
 
 class Vario
 {
-  public:
-    Vario();
-    int getCurrentValue();
-    void update();
-    int getCurrentPitch();
+public:
+  Vario();
+  int getCurrentValue();
+  void update();
+  int getCurrentPitch();
 
-  private:
-    void addValue();
-    float getWeightForIndex(int index, int count);
-
+private:
+  void addValue();
+  float getWeightForIndex(int index, int count);
 };
 
 #endif
