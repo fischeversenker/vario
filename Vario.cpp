@@ -21,7 +21,6 @@ void Vario::update()
   addValue();
 }
 
-// calcs the current pitch using a weighted window
 int Vario::getCurrentPitch()
 {
   float pitch = 0.0;
@@ -39,8 +38,8 @@ int Vario::getCurrentPitch()
 
 // PRIVATE
 
-// pushes curent value to the front of the deque and
-// removes the last one if vector is longer than MAX_VARIO_VALUES
+// pushes curent value to the front of the vector and
+// removes last value if vector is longer than MAX_VARIO_VALUES
 void Vario::addValue()
 {
   varioValues.insert(varioValues.begin(), getCurrentValue());
@@ -51,7 +50,7 @@ void Vario::addValue()
 }
 
 // weight for value at <index> in list of length <count>
-float Vario::getWeightForIndex(int index, int count)
+inline float Vario::getWeightForIndex(int index, int count)
 {
   return 1 - sqrt(index * (1 / count));
 }
