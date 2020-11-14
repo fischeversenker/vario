@@ -10,7 +10,7 @@
 #include <Arduino.h>
 #include <limits.h>
 
-#define BEEPER_PIN 2 //D4
+#define BEEPER_PIN 14 //D5
 #define BEEPER_DEFAULT_COOLDOWN 20
 #define BEEPER_DEFAULT_PITCH 1660
 #define BEEPER_DEFAULT_DURATION 70

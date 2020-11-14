@@ -6,19 +6,13 @@
 #include "./Vario.h"
 
 #ifndef WIFI_SSID
-#define WIFI_SSID "YOUR_SSID"
-#define WIFI_PASSWORD "YOUR_PASSWORD"
+#define WIFI_SSID "Plantopia"
+#define WIFI_PASSWORD "genaudreizehn"
 #endif
 
-#ifndef LONG_PRESS_INTVL
 #define LONG_PRESS_INTVL 400
-#endif
-
-#ifndef LOG_INTVL
-#define LOG_INTVL 100
-#endif
-
-const int startStopPin = D5; // 14
+#define LOG_INTVL 1000
+#define START_STOP_PIN 5 // D1
 
 bool logging = false;
 
@@ -36,7 +30,7 @@ Vario vario = Vario();
 
 ICACHE_RAM_ATTR void startStopChangeCallback()
 {
-  if (digitalRead(startStopPin) == LOW)
+  if (digitalRead(START_STOP_PIN) == LOW)
   {
     buttonPressed = millis();
     isPressed = true;
@@ -72,14 +66,14 @@ void logData()
 {
   if (isLongEnoughInPast(lastLogTime, LOG_INTVL))
   {
-    int pitch = vario.getCurrentPitch();
+    float pitch = vario.getCurrentPitch();
     Serial.print(UTC.dateTime(ISO8601) + " vario: ");
     Serial.print(vario.getCurrentValue());
     Serial.print(", pitch: ");
     Serial.println(pitch);
     blinker.blink();
 
-    beeper.beep(pitch, BEEPER_DEFAULT_DURATION, beepCooldown(pitch));
+    beeper.beep((int)pitch, BEEPER_DEFAULT_DURATION, beepCooldown(pitch));
 
     lastLogTime = millis();
   }
@@ -98,7 +92,7 @@ inline bool isLongEnoughInPast(unsigned long when, int howLong)
 
 void setup()
 {
-  pinMode(startStopPin, INPUT_PULLUP);
+  pinMode(START_STOP_PIN, INPUT_PULLUP);
 
   Serial.begin(115200);
   Serial.println();
@@ -119,8 +113,9 @@ void setup()
   Serial.println("Received internet time: " + UTC.dateTime());
   WiFi.mode(WIFI_OFF);
 
-  attachInterrupt(digitalPinToInterrupt(startStopPin), startStopChangeCallback, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(START_STOP_PIN), startStopChangeCallback, CHANGE);
 
+  vario.connect();
   beeper.confirmPositive();
 }
 

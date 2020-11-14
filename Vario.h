@@ -9,17 +9,21 @@
 
 #include <Arduino.h>
 #include <limits.h>
+#include <Wire.h>
+#include <Adafruit_BMP280.h>
 
-#define VARIO_PIN A0 //4
+#define SDA_PIN 0 // D3
+#define SCL_PIN 2 // D4
 #define MAX_VARIO_VALUES 300
 
 class Vario
 {
 public:
   Vario();
-  int getCurrentValue();
+  float getCurrentValue();
+  void connect();
   void update();
-  int getCurrentPitch();
+  float getCurrentPitch();
 
 private:
   void addValue();

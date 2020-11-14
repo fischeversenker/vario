@@ -5,15 +5,32 @@ int lastValue = 0;
 int currentValue = 0;
 
 std::vector<int> varioValues(MAX_VARIO_VALUES);
+Adafruit_BMP280 bmp; // I2C
 
 Vario::Vario()
 {
-  pinMode(VARIO_PIN, INPUT);
+  // manually initiate I2C Connection to control SDA and SCL pins
+  Wire.begin(SDA_PIN, SCL_PIN);
 }
 
-int Vario::getCurrentValue()
+float Vario::getCurrentValue()
 {
-  return analogRead(VARIO_PIN);
+  return bmp.readPressure();
+}
+
+void Vario::connect()
+{
+  while(!bmp.begin()) {
+    Serial.println(F("Could not find a valid BMP280 sensor, check wiring!"));
+    delay(500);
+  }
+
+  /* Default settings from datasheet. */
+  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
+                  Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
+                  Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
+                  Adafruit_BMP280::FILTER_X16,      /* Filtering. */
+                  Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 }
 
 void Vario::update()
@@ -21,7 +38,7 @@ void Vario::update()
   addValue();
 }
 
-int Vario::getCurrentPitch()
+float Vario::getCurrentPitch()
 {
   float pitch = 0.0;
   float weightsSum = 0.0;
@@ -33,7 +50,7 @@ int Vario::getCurrentPitch()
     weightsSum += weight;
   }
 
-  return (int)(pitch / weightsSum);
+  return (pitch / weightsSum);
 }
 
 // PRIVATE
