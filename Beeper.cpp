@@ -1,54 +1,56 @@
 #include "./Beeper.h"
 #include <queue>
 
-unsigned long lastBeepStop = LONG_MAX;
-unsigned long lastBeepStart = LONG_MAX;
-unsigned long lastBeepCooldown = BEEPER_DEFAULT_COOLDOWN;
-
-boolean isBeeping = false;
-
-std::queue<struct Beep> pendingBeepsQueue;
-
 Beeper::Beeper()
 {
   pinMode(BEEPER_PIN, OUTPUT);
   noTone(BEEPER_PIN);
 }
 
-void Beeper::beep(int pitch = BEEPER_DEFAULT_PITCH, int duration = BEEPER_DEFAULT_DURATION, int cooldown = BEEPER_DEFAULT_COOLDOWN)
+void Beeper::setMode(beeper_mode mode)
 {
-  // optimize this...
-  // only allow beeps while not beeping maybe?
-  if (pendingBeepsQueue.size() < BEEPER_MAX_PENDING)
-  {
-    pendingBeepsQueue.push(Beep(pitch, duration, cooldown));
-  }
+  _mode = mode;
+}
+
+void Beeper::setVerticalSpeed(float vSpeed)
+{
+  _vSpeed = constrain(vSpeed, BEEPER_V_SPEED_MIN, BEEPER_V_SPEED_MAX);
 }
 
 void Beeper::confirmPositive()
 {
-  beep(880);
-  beep(1660);
-  beep(3320);
+  // C6 -> G6 -> C7
+  tone(BEEPER_PIN, 523, BEEPER_DEFAULT_DURATION);
+  delay(BEEPER_DEFAULT_DURATION * 1.4);
+  tone(BEEPER_PIN, 784, BEEPER_DEFAULT_DURATION);
+  delay(BEEPER_DEFAULT_DURATION * 1.4);
+  tone(BEEPER_PIN, 1046, BEEPER_DEFAULT_DURATION);
 }
 
 void Beeper::confirmNegative()
 {
-  beep(1660);
-  beep(440);
+  // G6 -> C6
+  tone(BEEPER_PIN, 784, BEEPER_DEFAULT_DURATION);
+  delay(BEEPER_DEFAULT_DURATION * 1.4);
+  tone(BEEPER_PIN, 523, BEEPER_DEFAULT_DURATION);
 }
 
 void Beeper::update()
 {
-  if (isBeeping && millis() - lastBeepStart >= pendingBeepsQueue.front().duration)
+  if (_mode != MODE_VARIO)
   {
-    noTone(BEEPER_PIN);
-    isBeeping = false;
-    lastBeepStop = millis();
-    pendingBeepsQueue.pop();
+    return;
   }
 
-  if (_shouldBeep())
+  unsigned long now = millis();
+  if (_isBeeping && now - _lastBeepStart >= BEEPER_DEFAULT_DURATION)
+  {
+    noTone(BEEPER_PIN);
+    _isBeeping = false;
+    _lastBeepStop = now;
+  }
+
+  if (!_isBeeping && now - _lastBeepStop >= _getPauseDuration())
   {
     _beep();
   }
@@ -58,15 +60,29 @@ void Beeper::update()
 
 void Beeper::_beep()
 {
-  tone(BEEPER_PIN, pendingBeepsQueue.front().pitch);
-  isBeeping = true;
-  lastBeepStart = millis();
-  lastBeepCooldown = pendingBeepsQueue.front().cooldown;
+  tone(BEEPER_PIN, _getPitch());
+  _isBeeping = true;
+  _lastBeepStart = millis();
 }
 
-boolean Beeper::_shouldBeep()
+int Beeper::_getPauseDuration()
 {
-  boolean mayBeep = !isBeeping && millis() - lastBeepStop >= lastBeepCooldown;
-  boolean hasBeeps = pendingBeepsQueue.size() > 0;
-  return mayBeep && hasBeeps;
+  if (_vSpeed > -0.2 && _vSpeed < 0.1)
+  {
+    return LONG_MAX;
+  }
+  if (_vSpeed <= 0)
+  {
+    return map(_vSpeed, -2, 0, 3000, 0);
+  }
+  return map(_vSpeed, 0, 5, 1000, 70);
+}
+
+int Beeper::_getPitch()
+{
+  if (_vSpeed <= 0)
+  {
+    return map(_vSpeed, -2, 0, 50, 100);
+  }
+  return map(_vSpeed, 0, 5, 1000, 4000);
 }

@@ -1,73 +1,81 @@
 #include "./Vario.h"
-#include <vector>
-
-int lastValue = 0;
-int currentValue = 0;
-
-std::vector<int> varioValues(MAX_VARIO_VALUES);
-Adafruit_BMP280 bmp; // I2C
 
 Vario::Vario()
 {
   // manually initiate I2C Connection to control SDA and SCL pins
-  Wire.begin(SDA_PIN, SCL_PIN);
+  Wire.begin(VARIO_SDA_PIN, VARIO_SCL_PIN);
 }
 
-float Vario::getCurrentValue()
+void Vario::begin()
 {
-  return bmp.readPressure();
-}
-
-void Vario::connect()
-{
-  while(!bmp.begin()) {
+  if (!_bmp.begin())
+  {
     Serial.println(F("Could not find a valid BMP280 sensor, check wiring!"));
-    delay(500);
+    while (1)
+      ;
   }
 
-  /* Default settings from datasheet. */
-  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
-                  Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
-                  Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
-                  Adafruit_BMP280::FILTER_X16,      /* Filtering. */
-                  Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
+  _bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
+                   Adafruit_BMP280::SAMPLING_X1,     /* Temp. oversampling */
+                   Adafruit_BMP280::SAMPLING_X4,     /* Pressure oversampling */
+                   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
+                   Adafruit_BMP280::STANDBY_MS_250); /* Standby time. */
 }
 
 void Vario::update()
 {
-  addValue();
+  unsigned long now = millis();
+  if (now - _lastUpdate >= VARIO_UPDATE_FREQUENCY)
+  {
+    _addValue(getAltitude());
+    float currentAltitude = _getWeightedAltitude();
+    _verticalSpeed = (currentAltitude - _lastAltitude) * (1000 / VARIO_UPDATE_FREQUENCY);
+    _lastAltitude = currentAltitude;
+    _lastUpdate = now;
+  }
 }
 
-float Vario::getCurrentPitch()
+float Vario::getVerticalSpeed()
 {
-  float pitch = 0.0;
-  float weightsSum = 0.0;
-  int valueCount = varioValues.size();
-  for (int i = 0; i < valueCount; i++)
-  {
-    float weight = getWeightForIndex(i, valueCount);
-    pitch += weight * varioValues[i];
-    weightsSum += weight;
-  }
+  return _verticalSpeed;
+}
 
-  return (pitch / weightsSum);
+float Vario::getAltitude()
+{
+  return _bmp.readAltitude();
 }
 
 // PRIVATE
 
-// pushes curent value to the front of the vector and
-// removes last value if vector is longer than MAX_VARIO_VALUES
-void Vario::addValue()
+// calculates the weighted average of the last few altitude readings
+float Vario::_getWeightedAltitude()
 {
-  varioValues.insert(varioValues.begin(), getCurrentValue());
-  if (varioValues.size() > MAX_VARIO_VALUES)
+  float altitude = 0.0;
+  float weightsSum = 0.0;
+  int valueCount = _varioValues.size();
+  for (int i = 0; i < valueCount; i++)
   {
-    varioValues.pop_back();
+    float weight = _getWeightForIndex(i, valueCount);
+    altitude += weight * _varioValues[i];
+    weightsSum += weight;
+  }
+
+  return (altitude / weightsSum);
+}
+
+// pushes curent value to the front of the vector and
+// removes last value if vector is longer than VARIO_MAX_HISTORY_COUNT
+void Vario::_addValue(float altitude)
+{
+  _varioValues.insert(_varioValues.begin(), altitude);
+  if (_varioValues.size() > VARIO_MAX_HISTORY_COUNT)
+  {
+    _varioValues.pop_back();
   }
 }
 
 // weight for value at <index> in list of length <count>
-inline float Vario::getWeightForIndex(int index, int count)
+inline float Vario::_getWeightForIndex(int index, int count)
 {
   return 1 - sqrt(index * (1 / count));
 }

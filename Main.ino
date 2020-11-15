@@ -15,10 +15,9 @@
 #define START_STOP_PIN 5 // D1
 
 bool logging = false;
-
-unsigned long buttonPressed = LONG_MAX;
 unsigned long lastLogTime = 0;
 
+unsigned long buttonPressed = LONG_MAX;
 bool isPressed = false;
 // used to ignore presses after long press has been detected
 // and button is continously being pressed
@@ -28,6 +27,7 @@ Beeper beeper = Beeper();
 Blinker blinker = Blinker();
 Vario vario = Vario();
 
+// interrupt callback for start/stop button presses/releases
 ICACHE_RAM_ATTR void startStopChangeCallback()
 {
   if (digitalRead(START_STOP_PIN) == LOW)
@@ -37,7 +37,6 @@ ICACHE_RAM_ATTR void startStopChangeCallback()
   }
   else
   {
-    buttonPressed = LONG_MAX;
     isPressed = false;
     ignorePress = false;
   }
@@ -49,45 +48,25 @@ void toggle()
   if (logging)
   {
     beeper.confirmPositive();
+    beeper.setMode(Beeper::MODE_VARIO);
   }
   else
   {
     beeper.confirmNegative();
+    beeper.setMode(Beeper::MODE_NORMAL);
   }
   blinker.blink();
 }
 
-inline bool isLongPress()
-{
-  return isPressed && isLongEnoughInPast(buttonPressed, LONG_PRESS_INTVL);
-}
-
 void logData()
 {
-  if (isLongEnoughInPast(lastLogTime, LOG_INTVL))
-  {
-    float pitch = vario.getCurrentPitch();
-    Serial.print(UTC.dateTime(ISO8601) + " vario: ");
-    Serial.print(vario.getCurrentValue());
-    Serial.print(", pitch: ");
-    Serial.println(pitch);
-    blinker.blink();
-
-    beeper.beep((int)pitch, BEEPER_DEFAULT_DURATION, beepCooldown(pitch));
-
-    lastLogTime = millis();
-  }
-}
-
-// the higher the input the lower the duration
-inline int beepCooldown(int beepPitch)
-{
-  return (beepPitch * (-500.0 / 1024)) + 500;
-}
-
-inline bool isLongEnoughInPast(unsigned long when, int howLong)
-{
-  return millis() - when > howLong;
+  Serial.print(UTC.dateTime(ISO8601) + " vertical speed: ");
+  Serial.print(vario.getVerticalSpeed());
+  Serial.print(F(" [m/s], altitude: "));
+  Serial.print(vario.getAltitude());
+  Serial.println(F(" [m]"));
+  lastLogTime = millis();
+  blinker.blink();
 }
 
 void setup()
@@ -115,8 +94,8 @@ void setup()
 
   attachInterrupt(digitalPinToInterrupt(START_STOP_PIN), startStopChangeCallback, CHANGE);
 
-  vario.connect();
-  beeper.confirmPositive();
+  vario.begin();
+  beeper.confirmNegative();
 }
 
 void loop()
@@ -124,18 +103,25 @@ void loop()
   beeper.update();
   blinker.update();
 
-  if (!ignorePress && isLongPress())
+  unsigned long now = millis();
+  boolean isLongPress = isPressed && now - buttonPressed >= LONG_PRESS_INTVL;
+  if (!ignorePress && isLongPress)
   {
     ignorePress = true;
     toggle();
   }
+
+  // bail out if not currently logging
   if (!logging)
   {
     return;
   }
 
   vario.update();
+  beeper.setVerticalSpeed(vario.getVerticalSpeed());
 
-  logData();
-  delay(10);
+  if (now - lastLogTime >= LOG_INTVL)
+  {
+    logData();
+  }
 }
