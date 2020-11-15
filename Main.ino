@@ -6,22 +6,22 @@
 #include "./Vario.h"
 
 #ifndef WIFI_SSID
-#define WIFI_SSID "Plantopia"
-#define WIFI_PASSWORD "genaudreizehn"
+#define WIFI_SSID "YOUR_SSID"
+#define WIFI_PASSWORD "YOUR_PW"
 #endif
 
 #define LONG_PRESS_INTVL 400
 #define LOG_INTVL 1000
 #define START_STOP_PIN 5 // D1
 
-bool logging = false;
+boolean logging = false;
 unsigned long lastLogTime = 0;
 
 unsigned long buttonPressed = LONG_MAX;
-bool isPressed = false;
+boolean isPressed = false;
 // used to ignore presses after long press has been detected
 // and button is continously being pressed
-bool ignorePress = false;
+boolean ignorePress = false;
 
 Beeper beeper = Beeper();
 Blinker blinker = Blinker();
@@ -55,12 +55,12 @@ void toggle()
     beeper.confirmNegative();
     beeper.setMode(Beeper::MODE_NORMAL);
   }
-  blinker.blink();
 }
 
 void logData()
 {
-  Serial.print(UTC.dateTime(ISO8601) + " vertical speed: ");
+  Serial.print(UTC.dateTime(ISO8601));
+  Serial.print(F(" vertical speed: "));
   Serial.print(vario.getVerticalSpeed());
   Serial.print(F(" [m/s], altitude: "));
   Serial.print(vario.getAltitude());
@@ -75,21 +75,29 @@ void setup()
 
   Serial.begin(115200);
   Serial.println();
-  Serial.print("Booting");
+  Serial.print(F("Booting"));
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  do
+  int wifiConnectionAttempts = 0;
+  while (WiFi.status() != WL_CONNECTED && wifiConnectionAttempts <= 20)
   {
+    wifiConnectionAttempts++;
+    Serial.print(F("."));
     delay(500);
-    Serial.print(".");
-  } while (WiFi.status() != WL_CONNECTED);
-
+  }
   Serial.println();
-  Serial.println("Connected to WiFi");
 
-  // wait for internet time
-  waitForSync();
-  Serial.println("Received internet time: " + UTC.dateTime());
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    Serial.println(F("Connected to WiFi"));
+    beeper.confirmNegative();
+
+    // wait for internet time
+    waitForSync();
+    Serial.print(F("Received internet time: "));
+    Serial.println(UTC.dateTime());
+  }
+  // to save power switch off WIFI module
   WiFi.mode(WIFI_OFF);
 
   attachInterrupt(digitalPinToInterrupt(START_STOP_PIN), startStopChangeCallback, CHANGE);

@@ -20,6 +20,12 @@ void Vario::begin()
                    Adafruit_BMP280::SAMPLING_X4,     /* Pressure oversampling */
                    Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                    Adafruit_BMP280::STANDBY_MS_250); /* Standby time. */
+
+  // init the last known altitude
+  _addValue(getAltitude());
+  delay(100);
+  _addValue(getAltitude());
+  _lastAltitude = _getWeightedAltitude();
 }
 
 void Vario::update()
