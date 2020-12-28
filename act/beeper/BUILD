@@ -14,7 +14,7 @@ cc_library(
     deps = ["//test/mocks"],
 )
 
-cc_binary(
+cc_test(
     name = "unit_test",
     srcs = ["Beeper_test.cc"],
     deps = [
