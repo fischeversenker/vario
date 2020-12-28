@@ -41,10 +41,10 @@ void toggle() {
   logging = !logging;
   if (logging) {
     beeper.confirmPositive();
-    beeper.setMode(Beeper::MODE_VARIO);
+    beeper.setMode(Beeper::Mode::kVario);
   } else {
     beeper.confirmNegative();
-    beeper.setMode(Beeper::MODE_NORMAL);
+    beeper.setMode(Beeper::Mode::kNormal);
   }
 }
 
