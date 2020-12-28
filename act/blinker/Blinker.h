@@ -6,13 +6,10 @@
 #ifndef Blinker_h
 #define Blinker_h
 
-#include <Arduino.h>
-
-#define BLINKER_PIN 12 //D6
+#define BLINKER_PIN 12 // D6
 #define BLINKER_DURATION 150
 
-class Blinker
-{
+class Blinker {
 public:
   Blinker();
   void update();
@@ -20,7 +17,7 @@ public:
 
 private:
   unsigned long _lastBlinkStart = 0;
-  boolean _isOn = false;
+  bool _isOn = false;
 };
 
 #endif
