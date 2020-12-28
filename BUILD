@@ -1,6 +1,5 @@
 load(
     "@platformio_rules//platformio:platformio.bzl",
-    "platformio_library",
     "platformio_project",
 )
 
@@ -13,6 +12,6 @@ platformio_project(
     deps = [
         "//act/beeper:Beeper",
         "//act/blinker:Blinker",
-        "//legacy",
+        "//sense/vario:Vario",
     ],
 )

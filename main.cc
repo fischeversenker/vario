@@ -2,7 +2,7 @@
 #include <limits.h>
 #include <Beeper.h>
 #include <Blinker.h>
-#include "Vario.h"
+#include <Vario.h>
 
 #ifndef WIFI_SSID
 #define WIFI_SSID "YOUR_SSID"
