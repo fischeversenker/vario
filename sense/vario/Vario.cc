@@ -1,5 +1,8 @@
 #include "Vario.h"
 
+#include <Arduino.h>
+
+
 Vario::Vario()
 {
   // manually initiate I2C Connection to control SDA and SCL pins
