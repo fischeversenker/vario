@@ -6,11 +6,10 @@
 #ifndef Blinker_h
 #define Blinker_h
 
-#define BLINKER_PIN 12 //D6
+#define BLINKER_PIN 12 // D6
 #define BLINKER_DURATION 150
 
-class Blinker
-{
+class Blinker {
 public:
   Blinker();
   void update();

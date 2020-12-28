@@ -1,8 +1,8 @@
-#include <ESP8266WiFi.h>
-#include <limits.h>
 #include <Beeper.h>
 #include <Blinker.h>
+#include <ESP8266WiFi.h>
 #include <Vario.h>
+#include <limits.h>
 
 #ifndef WIFI_SSID
 #define WIFI_SSID "YOUR_SSID"
@@ -27,37 +27,28 @@ Blinker blinker = Blinker();
 Vario vario = Vario();
 
 // interrupt callback for start/stop button presses/releases
-ICACHE_RAM_ATTR void startStopChangeCallback()
-{
-  if (digitalRead(START_STOP_PIN) == LOW)
-  {
+ICACHE_RAM_ATTR void startStopChangeCallback() {
+  if (digitalRead(START_STOP_PIN) == LOW) {
     buttonPressed = millis();
     isPressed = true;
-  }
-  else
-  {
+  } else {
     isPressed = false;
     ignorePress = false;
   }
 }
 
-void toggle()
-{
+void toggle() {
   logging = !logging;
-  if (logging)
-  {
+  if (logging) {
     beeper.confirmPositive();
     beeper.setMode(Beeper::MODE_VARIO);
-  }
-  else
-  {
+  } else {
     beeper.confirmNegative();
     beeper.setMode(Beeper::MODE_NORMAL);
   }
 }
 
-void logData()
-{
+void logData() {
   Serial.print(F(" vertical speed: "));
   Serial.print(vario.getVerticalSpeed());
   Serial.print(F(" [m/s], altitude: "));
@@ -67,8 +58,7 @@ void logData()
   blinker.blink();
 }
 
-void setup()
-{
+void setup() {
   pinMode(START_STOP_PIN, INPUT_PULLUP);
 
   Serial.begin(115200);
@@ -77,53 +67,47 @@ void setup()
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   int wifiConnectionAttempts = 0;
-  while (WiFi.status() != WL_CONNECTED && wifiConnectionAttempts <= 20)
-  {
+  while (WiFi.status() != WL_CONNECTED && wifiConnectionAttempts <= 20) {
     wifiConnectionAttempts++;
     Serial.print(F("."));
     delay(500);
   }
   Serial.println();
 
-  if (WiFi.status() == WL_CONNECTED)
-  {
+  if (WiFi.status() == WL_CONNECTED) {
     Serial.println(F("Connected to WiFi"));
     beeper.confirmNegative();
-
   }
   // to save power switch off WIFI module
   WiFi.mode(WIFI_OFF);
 
-  attachInterrupt(digitalPinToInterrupt(START_STOP_PIN), startStopChangeCallback, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(START_STOP_PIN),
+                  startStopChangeCallback, CHANGE);
 
   vario.begin();
   beeper.confirmNegative();
 }
 
-void loop()
-{
+void loop() {
   beeper.update();
   blinker.update();
 
   unsigned long now = millis();
   boolean isLongPress = isPressed && now - buttonPressed >= LONG_PRESS_INTVL;
-  if (!ignorePress && isLongPress)
-  {
+  if (!ignorePress && isLongPress) {
     ignorePress = true;
     toggle();
   }
 
   // bail out if not currently logging
-  if (!logging)
-  {
+  if (!logging) {
     return;
   }
 
   vario.update();
   beeper.setVerticalSpeed(vario.getVerticalSpeed());
 
-  if (now - lastLogTime >= LOG_INTVL)
-  {
+  if (now - lastLogTime >= LOG_INTVL) {
     logData();
   }
 }

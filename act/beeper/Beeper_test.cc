@@ -2,11 +2,10 @@
 
 #include <gtest/gtest.h>
 
-
 namespace {
 
-TEST(Beeper, Instantiation){
- Beeper();
- SUCCEED();
+TEST(Beeper, Instantiation) {
+  Beeper();
+  SUCCEED();
 }
-}
+} // namespace

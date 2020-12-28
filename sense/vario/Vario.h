@@ -15,8 +15,7 @@
 #define VARIO_MAX_HISTORY_COUNT 10
 #define VARIO_UPDATE_FREQUENCY 100
 
-class Vario
-{
+class Vario {
 public:
   Vario();
   void begin();
@@ -36,4 +35,4 @@ private:
   float _verticalSpeed = 0;
 };
 
-#endif //SENSE_VARIO_VARIO_H
+#endif // SENSE_VARIO_VARIO_H
