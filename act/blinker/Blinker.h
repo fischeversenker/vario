@@ -6,8 +6,6 @@
 #ifndef Blinker_h
 #define Blinker_h
 
-#include <Arduino.h>
-
 #define BLINKER_PIN 12 //D6
 #define BLINKER_DURATION 150
 

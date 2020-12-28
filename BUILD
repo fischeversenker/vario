@@ -11,6 +11,7 @@ platformio_project(
     framework = "arduino",
     platform = "espressif8266",
     deps = [
-        "//legacy"
-    ]
+        "//act/blinker:Blinker",
+        "//legacy",
+    ],
 )

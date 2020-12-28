@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <limits.h>
 #include "Beeper.h"
-#include "Blinker.h"
+#include <Blinker.h>
 #include "Vario.h"
 
 #ifndef WIFI_SSID

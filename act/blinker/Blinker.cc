@@ -1,5 +1,7 @@
 #include "Blinker.h"
 
+#include <Arduino.h>
+
 Blinker::Blinker()
 {
   pinMode(BLINKER_PIN, OUTPUT);
