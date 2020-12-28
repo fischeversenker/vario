@@ -1,6 +1,12 @@
 #include "Beeper.h"
 #include <queue>
 
+#ifdef PLATFORMIO_BUILD
+#include <Arduino.h>
+#else
+#include "test/mocks/Arduino.h"
+#endif
+
 Beeper::Beeper()
 {
   pinMode(BEEPER_PIN, OUTPUT);
@@ -67,22 +73,22 @@ void Beeper::_beep()
 
 int Beeper::_getPauseDuration()
 {
-  if (_vSpeed > -0.2 && _vSpeed < 0.1)
+  if (_vSpeed > -0.2F && _vSpeed < 0.1F)
   {
     return LONG_MAX;
   }
   if (_vSpeed <= 0)
   {
-    return map(_vSpeed, -2, 0, 3000, 0);
+    return map(_vSpeed, -2.F, 0.F, 3000.F, 0.F);
   }
-  return map(_vSpeed, 0, 5, 1000, 70);
+  return map(_vSpeed, 0.F, 5.F, 1000.F, 70.F);
 }
 
 int Beeper::_getPitch()
 {
   if (_vSpeed <= 0)
   {
-    return map(_vSpeed, -2, 0, 50, 100);
+    return map(_vSpeed, -2.F, 0.F, 50.F, 100.F);
   }
-  return map(_vSpeed, 0, 5, 1000, 4000);
+  return map(_vSpeed, 0.F, 5.F, 1000.F, 4000.F);
 }

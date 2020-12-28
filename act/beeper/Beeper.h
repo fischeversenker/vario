@@ -6,7 +6,7 @@
 #ifndef Beeper_h
 #define Beeper_h
 
-#include <Arduino.h>
+
 #include <limits.h>
 
 #define BEEPER_PIN 14 //D5
@@ -14,8 +14,8 @@
 #define BEEPER_DEFAULT_PITCH 1660
 #define BEEPER_DEFAULT_DURATION 70
 #define BEEPER_MAX_PENDING 10
-#define BEEPER_V_SPEED_MIN -5
-#define BEEPER_V_SPEED_MAX 5
+#define BEEPER_V_SPEED_MIN -5.0F
+#define BEEPER_V_SPEED_MAX 5.0F
 
 class Beeper
 {
@@ -39,7 +39,7 @@ private:
   int _getPitch();
 
   beeper_mode _mode = MODE_NORMAL;
-  boolean _isBeeping = false;
+  bool _isBeeping = false;
   unsigned long _lastBeepStop = 0;
   unsigned long _lastBeepStart = 0;
   float _vSpeed = 0;

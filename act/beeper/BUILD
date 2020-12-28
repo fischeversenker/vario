@@ -6,3 +6,19 @@ platformio_library(
     hdr = "Beeper.h",
     visibility = ["//visibility:public"],
 )
+
+cc_library(
+    name = "cc_beeper",
+    srcs = ["Beeper.cc"],
+    hdrs = ["Beeper.h"],
+    deps = ["//test/mocks"],
+)
+
+cc_binary(
+    name = "unit_test",
+    srcs = ["Beeper_test.cc"],
+    deps = [
+        ":cc_beeper",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
