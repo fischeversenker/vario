@@ -18,7 +18,7 @@ public:
 
 private:
   unsigned long _lastBlinkStart = 0;
-  boolean _isOn = false;
+  bool _isOn = false;
 };
 
 #endif

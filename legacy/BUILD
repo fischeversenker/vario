@@ -5,16 +5,12 @@ load(
 
 platformio_library(
     name = "legacy",
-    hdr = "legacy.h",
     add_hdrs = [
-        "Beeper.h",
-        "Blinker.h",
         "Vario.h",
     ],
     add_srcs = [
-        "Beeper.cpp",
-        "Blinker.cpp",
         "Vario.cpp",
     ],
-    visibility = ["//visibility:public"]
+    hdr = "legacy.h",
+    visibility = ["//visibility:public"],
 )
