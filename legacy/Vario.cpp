@@ -1,4 +1,4 @@
-#include "./Vario.h"
+#include "Vario.h"
 
 Vario::Vario()
 {

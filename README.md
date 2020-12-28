@@ -4,5 +4,5 @@ work in progress...
 
 # build instructions
 ```bash
-bazel build //:all
+bazel build //:vario
 ```

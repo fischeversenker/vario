@@ -1,9 +1,8 @@
 #include <ESP8266WiFi.h>
-#include <ezTime.h>
 #include <limits.h>
-#include "./Beeper.h"
-#include "./Blinker.h"
-#include "./Vario.h"
+#include "Beeper.h"
+#include "Blinker.h"
+#include "Vario.h"
 
 #ifndef WIFI_SSID
 #define WIFI_SSID "YOUR_SSID"
@@ -59,7 +58,6 @@ void toggle()
 
 void logData()
 {
-  Serial.print(UTC.dateTime(ISO8601));
   Serial.print(F(" vertical speed: "));
   Serial.print(vario.getVerticalSpeed());
   Serial.print(F(" [m/s], altitude: "));
@@ -92,10 +90,6 @@ void setup()
     Serial.println(F("Connected to WiFi"));
     beeper.confirmNegative();
 
-    // wait for internet time
-    waitForSync();
-    Serial.print(F("Received internet time: "));
-    Serial.println(UTC.dateTime());
   }
   // to save power switch off WIFI module
   WiFi.mode(WIFI_OFF);
